@@ -107,8 +107,17 @@ class _MyHomePageState extends State<MyHomePage> {
       page = Center(
         child: Image.network(
           apod.hdurl,
-          loadingBuilder: loadingImage,
-          errorBuilder: errorImage,
+            loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) => 
+              loadingProgress == null ? child :
+              Center(
+                child: CircularProgressIndicator(
+                  color: Colors.indigo,
+                ),
+              ),
+          errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) => 
+            Center(
+              child: Icon(Icons.error, color: Colors.red),
+            )
         ),
       );
     }
@@ -136,26 +145,6 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget errorImage(BuildContext context, Object error, StackTrace? stackTrace) {
-    return Center(
-      child: Icon(Icons.error, color: Colors.red),
-    );
-  }
-
-  Widget loadingImage(BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
-    if (loadingProgress == null) {
-      return child;
-    }
-    return Center(
-      child: CircularProgressIndicator(
-        color: Colors.indigo,
-        value: loadingProgress.expectedTotalBytes != null
-            ? loadingProgress.cumulativeBytesLoaded / (loadingProgress.expectedTotalBytes ?? 1)
-            : null,
       ),
     );
   }
@@ -233,6 +222,11 @@ class BottomBarWidget extends StatelessWidget {
                 ),
                 title: Text(apods[index].title),
                 subtitle: Text(dateFormat.format(apods[index].date)),
+                trailing: IconButton(
+                  tooltip: "Voir",
+                  onPressed: () => context.read<MyAppState>().changeDay(index),
+                  icon: Icon(Icons.visibility)
+                ),
               ),
           ],
         );
